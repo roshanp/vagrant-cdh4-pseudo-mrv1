@@ -15,6 +15,11 @@ sudo -E apt-get --yes --force-yes install hadoop-0.20-conf-pseudo
 dpkg -L hadoop-0.20-conf-pseudo
 ls /etc/hadoop/conf.pseudo.mr1
 
+echo Stop all
+
+for x in `cd /etc/init.d ; ls hadoop-0.20-mapreduce-*` ; do sudo -E service $x stop ; done
+for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do sudo -E service $x stop ; done
+
 echo Edit config files
 
 sudo -E sed -i 's/localhost:8020/192.168.56.20:8020/g' /etc/hadoop/conf/core-site.xml
