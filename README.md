@@ -2,14 +2,19 @@
 
 This is a single-node CDH4 cluster with the following services:
 
-* Node 'cloudera0'
-** HDFS
-** Map/Reduce v1
+* Node `cloudera0`
+  * HDFS: 
+    * namenode
+    * datanode
+  * Map/Reduce v1
+    * jobtracker
+    * tasktracker
 
 # Installation
 
-* Clone the repository
-* Do 'vagrant up'
+1. git clone https://github.com/sgomezvillamor/vagrant-cdh4-pseudo-mrv1
+2. cd vagrant-cdh4-pseudo-mrv1
+3. vagrant up
 
 # Webapps
 
