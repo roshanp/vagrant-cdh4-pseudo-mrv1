@@ -14,9 +14,11 @@ All nodes have a `vagrant` user (password: `vagrant`).
 
 # Installation
 
-1. git clone https://github.com/sgomezvillamor/vagrant-cdh4-pseudo-mrv1
-2. cd vagrant-cdh4-pseudo-mrv1
-3. vagrant up
+```
+git clone https://github.com/sgomezvillamor/vagrant-cdh4-pseudo-mrv1
+cd vagrant-cdh4-pseudo-mrv1
+vagrant up
+```
 
 # Webapps
 
