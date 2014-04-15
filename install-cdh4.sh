@@ -28,7 +28,11 @@ sudo -E sed -i 's/localhost:8020/192.168.56.20:8020/g' /etc/hadoop/conf.pseudo.m
 sudo -E sed -i 's/localhost:8021/192.168.56.20:8021/g' /etc/hadoop/conf/mapred-site.xml
 sudo -E sed -i 's/localhost:8021/192.168.56.20:8021/g' /etc/hadoop/conf.pseudo.mr1/mapred-site.xml
 
-echo "export JAVA_HOME=/opt/jdk1.6.0_45" | sudo -E tee -a /etc/default/hadoop
+echo disable dfs permission
+sudo -E python /vagrant/disable-dfs-permission.py
+
+echo add hostname on 192.168.56.20
+echo '192.168.56.20   localHdfsCluster' | sudo tee -a /etc/hosts > /dev/null 
 
 echo Format namenode
 
