@@ -2,16 +2,18 @@
 # vi: set ft=ruby :
 
 
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "UbuntuPrecise64"
   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.network "public_network"
+  config.vm.hostname = "localdev"
 
   config.vm.provision :shell, :inline => "source /vagrant/install-cdh4.sh"
 
-  config.vm.define :cloudera0 do |cloudera0_config|
-    cloudera0_config.vm.host_name = "cloudera0"
-    cloudera0_config.vm.network :hostonly, "192.168.56.20"
-    cloudera0_config.vm.customize ["modifyvm", :id, "--memory", 2048]
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
   end
 
 end
