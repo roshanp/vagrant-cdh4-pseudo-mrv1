@@ -1,3 +1,4 @@
+source /vagrant/provision-hosts.sh
 source /vagrant/install-java.sh
 
 echo Install packages
@@ -22,14 +23,14 @@ sudo -E apt-get --yes --force-yes install hadoop-0.20-conf-pseudo
 dpkg -L hadoop-0.20-conf-pseudo
 ls /etc/hadoop/conf.pseudo.mr1
 
+echo "Installing Zookeeper Server"
+
+sudo apt-get install zookeeper-server
+
 echo "Installing Accumulo packages"
 
-sudo apt-get install --yes --force-yes accumulo-master
-sudo apt-get install --yes --force-yes accumulo-monitor
-sudo apt-get install --yes --force-yes accumulo-gc
-sudo apt-get install --yes --force-yes accumulo-tracer
-sudo apt-get install --yes --force-yes accumulo-tserver
-sudo apt-get install --yes --force-yes zookeeper-server
+curl -L http://apache.tradebit.com/pub/accumulo/1.5.1/accumulo-1.5.1-bin.deb > /tmp/accumulo-1.5.1-bin.deb
+sudo dpkg -i /tmp/accumulo-1.5.1-bin.deb
 
 echo Stop all
 
@@ -85,8 +86,27 @@ echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 
 sudo sysctl -p
 
+sudo cp /etc/accumulo/conf/examples/512MB/standalone/* /etc/accumulo/conf/
+
 sudo -E sed -i 's/<\/configuration>/<property><name>dfs.datanode.synconclose<\/name><value>true<\/value><\/property><\/configuration>/g' /etc/hadoop/conf/core-site.xml
-sudo -E sed -i 's/localhost:2181/'$HOSTNAME':2181/g' /etc/accumulo/conf/accumulo-site.xml
+sudo -E sed -i 's/$HADOOP_PREFIX\/conf/$HADOOP_PREFIX\/etc\/hadoop/g' /etc/accumulo/conf/accumulo-env.sh
+sudo cp /vagrant/accumulo-site.xml /etc/accumulo/conf/
+
+cat > /etc/accumulo/conf/masters <<EOF
+localdev
+EOF
+
+cat > /etc/accumulo/conf/slaves <<EOF
+localdev
+EOF
+
+cat > /etc/accumulo/conf/monitor <<EOF
+localdev
+EOF
+
+cat > /etc/accumulo/conf/gc <<EOF
+localdev
+EOF
 
 echo "ACCUMULO_TSERVER_OPTS=\"-Xmx128m -Xms128m\"
 ACCUMULO_MASTER_OPTS=\"-Xmx128m -Xms128m\"
@@ -103,6 +123,13 @@ sudo -E service zookeeper-server start
 
 echo "Initializing Accumulo"
 
+sudo groupadd accumulo
+sudo useradd -g accumulo -m accumulo
+
+#TODO: logs
+sudo chown -R accumulo:accumulo /var/log/accumulo
+sudo chown -R accumulo:accumulo /usr/lib/accumulo
+
 sudo -E -u hdfs hadoop fs -mkdir /accumulo /user/accumulo
 sudo -E -u hdfs hadoop fs -chown accumulo:supergroup /accumulo /user/accumulo
 sudo -E -u hdfs hadoop fs -chmod 751 /accumulo
@@ -112,10 +139,6 @@ sudo -E -u accumulo accumulo init --instance-name accumulo --password secret
 
 echo "Starting Accumulo"
 
-sudo -E service accumulo-master start
-sudo -E service accumulo-monitor start
-sudo -E service accumulo-gc start
-sudo -E service accumulo-tracer start
-sudo -E service accumulo-tserver start
+sudo -E -u accumulo /usr/lib/accumulo/bin/start-all.sh
 
 echo 'Done!'
